@@ -1,0 +1,50 @@
+
+install.packages("scatterplot3d")
+install.packages("plotly")
+library(scatterplot3d)
+library(plotly)
+
+data <- data.frame(
+  Product = c("A", "B", "C", "D", "E"),
+  Price = c(50, 70, 60, 45, 55),
+  Rating = c(4.2, 3.8, 4.0, 4.5, 3.9),
+  AgeGroup = c("25-35", "35-45", "18-25", "45-55", "25-35")
+)
+
+data$AgeGroupNumeric <- as.numeric(factor(data$AgeGroup, levels = c("18-25", "25-35", "35-45", "45-55")))
+
+
+scatterplot3d(data$Price, data$Rating, data$AgeGroupNumeric, 
+              xlab = "Price ($)", 
+              ylab = "Rating (out of 5)", 
+              zlab = "Age Group (numeric)",
+              main = "3D Scatter Plot")
+
+# Correlation can be observed visually. Further statistical analysis can be done to quantify.
+
+# Create a grid for the surface plot
+Price <- seq(min(data$Price), max(data$Price), length.out = 100)
+AgeGroupNumeric <- seq(min(data$AgeGroupNumeric), max(data$AgeGroupNumeric), length.out = 100)
+grid <- expand.grid(Price = Price, AgeGroupNumeric = AgeGroupNumeric)
+grid$Rating <- with(grid, (max(data$Rating) - min(data$Rating)) / (max(Price) - min(Price)) * (Price - min(Price)) + 
+                              (max(data$Rating) - min(data$Rating)) / (max(AgeGroupNumeric) - min(AgeGroupNumeric)) * (AgeGroupNumeric - min(AgeGroupNumeric)))
+
+plot_ly(x = ~grid$Price, y = ~grid$AgeGroupNumeric, z = ~grid$Rating, 
+        type = "surface") %>%
+  layout(scene = list(
+    xaxis = list(title = "Price ($)"),
+    yaxis = list(title = "Age Group (numeric)"),
+    zaxis = list(title = "Rating (out of 5)")))
+
+
+scatterplot3d(data$Price, data$Rating, data$AgeGroupNumeric, 
+              xlab = "Price ($)", 
+              ylab = "Rating (out of 5)", 
+              zlab = "Age Group (numeric)",
+              main = "3D Scatter Plot: Rating vs Price")
+
+scatterplot3d(data$AgeGroupNumeric, data$Rating, data$Price, 
+              xlab = "Age Group (numeric)", 
+              ylab = "Rating (out of 5)", 
+              zlab = "Price ($)",
+              main = "3D Scatter Plot: Rating vs Age Group")
